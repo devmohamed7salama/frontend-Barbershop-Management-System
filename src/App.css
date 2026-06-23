@@ -1,0 +1,588 @@
+/* ==========================================================================
+   1. Authentication Pages Styling (Arabic RTL)
+   ========================================================================== */
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background-color: #f7f9fb;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background-color: #ffffff;
+  border: 1px solid #e6e8ea;
+  border-radius: 16px;
+  box-shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.05), 0px 10px 15px -3px rgba(0, 0, 0, 0.1);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.auth-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.auth-logo {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  object-fit: contain;
+}
+
+.auth-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.auth-subtitle {
+  font-size: 14px;
+  color: #444748;
+  margin: 0;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.form-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.input-container {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #747878;
+  font-size: 20px;
+  pointer-events: none;
+}
+
+.auth-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  background-color: #ffffff;
+  border: 1px solid #c4c7c7;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #191c1e;
+  outline: none;
+  transition: all 0.2s ease-in-out;
+  text-align: right;
+}
+
+.auth-input.with-icon {
+  padding-right: 44px;
+}
+
+.auth-input:focus {
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+}
+
+.password-toggle {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #747878;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.password-toggle:hover {
+  color: #1a1a1a;
+}
+
+.forgot-password-link {
+  font-size: 12px;
+  color: #735c00;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.forgot-password-link:hover {
+  color: #1a1a1a;
+  text-decoration: underline;
+}
+
+.auth-submit-btn {
+  width: 100%;
+  height: 48px;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+  margin-top: 8px;
+}
+
+.auth-submit-btn:hover {
+  background-color: #2d3133;
+}
+
+.auth-submit-btn:disabled {
+  background-color: #c4c7c7;
+  cursor: not-allowed;
+}
+
+.auth-footer {
+  text-align: center;
+  padding-top: 16px;
+  border-top: 1px solid #e6e8ea;
+}
+
+.auth-footer-text {
+  font-size: 14px;
+  color: #444748;
+  margin: 0;
+}
+
+.auth-footer-link {
+  color: #1a1a1a;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  transition: color 0.2s;
+}
+
+.auth-footer-link:hover {
+  color: #735c00;
+}
+
+/* ==========================================================================
+   2. Admin Dashboard Layout Styling (Arabic RTL)
+   ========================================================================== */
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f7f9fb;
+}
+
+.dashboard-sidebar {
+  background-color: #ffffff;
+  position: fixed;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 280px;
+  border-left: 1px solid #e6e8ea;
+  box-shadow: 0px 4px 6px -1px rgba(0, 0, 0, 0.05);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 0;
+}
+
+.sidebar-header {
+  padding: 0 24px;
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.sidebar-logo-container {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #f2f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e6e8ea;
+  overflow: hidden;
+}
+
+.sidebar-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sidebar-brand-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-brand-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.sidebar-brand-sub {
+  font-size: 11px;
+  color: #444748;
+  margin: 0;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  color: #444748;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+  border-right: 4px solid transparent;
+}
+
+.sidebar-link:hover {
+  background-color: #f2f4f6;
+  color: #1a1a1a;
+}
+
+.sidebar-link.active {
+  background-color: #eceef0;
+  color: #1a1a1a;
+  font-weight: 700;
+  border-right-color: #D4AF37;
+}
+
+.sidebar-link .material-symbols-outlined {
+  font-size: 22px;
+}
+
+.sidebar-cta-container {
+  padding: 0 24px;
+  margin-top: auto;
+  margin-bottom: 16px;
+}
+
+.sidebar-cta-btn {
+  width: 100%;
+  height: 44px;
+  background-color: #fed65b;
+  color: #745c00;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.sidebar-cta-btn:hover {
+  opacity: 0.9;
+}
+
+.sidebar-footer {
+  border-top: 1px solid #e6e8ea;
+  padding-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar-footer .sidebar-link {
+  padding: 8px 24px;
+}
+
+/* Dashboard Content Wrapper */
+.dashboard-content-wrapper {
+  margin-right: 280px; /* Space for fixed sidebar on the right */
+  width: calc(100% - 280px);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Top Navigation Bar */
+.dashboard-header {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e6e8ea;
+  height: 64px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 40px;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.header-search-container {
+  position: relative;
+  width: 384px;
+}
+
+.header-search-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #444748;
+  pointer-events: none;
+}
+
+.header-search-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 40px 0 16px;
+  background-color: #f7f9fb;
+  border: 1px solid #c4c7c7;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s;
+  text-align: right;
+}
+
+.header-search-input:focus {
+  border-color: #D4AF37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.header-icon-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-icon-btn {
+  background: none;
+  border: none;
+  padding: 8px;
+  border-radius: 50%;
+  color: #444748;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: background-color 0.2s;
+}
+
+.header-icon-btn:hover {
+  background-color: #eceef0;
+}
+
+.header-notification-badge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 8px;
+  height: 8px;
+  background-color: #ba1a1a;
+  border-radius: 50%;
+}
+
+.header-divider {
+  width: 1px;
+  height: 32px;
+  background-color: #c4c7c7;
+}
+
+.header-text-btn {
+  background: none;
+  border: none;
+  color: #444748;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.header-text-btn:hover {
+  color: #1a1a1a;
+}
+
+.header-profile-btn {
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.header-profile-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.header-profile-avatar-container {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid #c4c7c7;
+  background-color: #eceef0;
+}
+
+.header-profile-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Dashboard Footer */
+.dashboard-footer {
+  background-color: #f2f4f6;
+  border-top: 1px solid #e6e8ea;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 40px;
+  margin-top: auto;
+}
+
+.dashboard-footer-brand {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.dashboard-footer-copy {
+  font-size: 14px;
+  color: #444748;
+  margin: 0;
+}
+
+.dashboard-footer-links {
+  display: flex;
+  gap: 16px;
+}
+
+.dashboard-footer-link {
+  font-size: 13px;
+  color: #444748;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.dashboard-footer-link:hover {
+  color: #735c00;
+}
+
+/* ==========================================================================
+   3. Client / Public Booking Layout Styling (Arabic RTL)
+   ========================================================================== */
+.client-layout-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f7f9fb;
+}
+
+.client-header {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e6e8ea;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.client-header-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #1a1a1a;
+  text-decoration: none;
+}
+
+.client-header-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.client-main-content {
+  flex-grow: 1;
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 32px 16px;
+}
+
+.client-footer {
+  background-color: #f2f4f6;
+  border-top: 1px solid #e6e8ea;
+  padding: 16px 0;
+}
+
+.client-footer-container {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 16px;
+  text-align: center;
+}
+
+.client-footer-text {
+  font-size: 12px;
+  color: #444748;
+  margin: 0;
+}

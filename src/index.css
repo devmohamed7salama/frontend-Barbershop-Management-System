@@ -1,0 +1,123 @@
+body {
+  font-family: 'Cairo', sans-serif;
+  background-color: #f7f9fb;
+  color: #191c1e;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Align inputs to RTL properly */
+input, select, textarea, button {
+  font-family: 'Cairo', sans-serif;
+}
+
+/* Material symbols adjustments */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  direction: ltr; /* Ensure icons display correctly */
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Custom Toast Styling aligned with website brand */
+.Toastify__toast-container {
+  font-family: 'Cairo', sans-serif !important;
+}
+
+.Toastify__toast {
+  font-family: 'Cairo', sans-serif !important;
+  border-radius: 8px !important;
+  border: 1px solid #444748 !important;
+  box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.2) !important;
+  background-color: #191c1e !important;
+  color: #ffffff !important;
+  padding: 14px 20px !important;
+}
+
+.Toastify__toast--success {
+  border-inline-start: 5px solid #2e7d32 !important;
+}
+
+.Toastify__toast--error {
+  border-inline-start: 5px solid #ba1a1a !important;
+}
+
+.Toastify__toast--warning {
+  border-inline-start: 5px solid #fed65b !important;
+}
+
+.Toastify__toast--info {
+  border-inline-start: 5px solid #D4AF37 !important;
+}
+
+.Toastify__close-button {
+  color: #ffffff !important;
+  opacity: 0.7 !important;
+  align-self: center !important;
+}
+
+.Toastify__close-button:hover {
+  opacity: 1 !important;
+}
+
+.Toastify__progress-bar {
+  height: 3px !important;
+}
+
+.Toastify__progress-bar--success {
+  background: #2e7d32 !important;
+}
+
+.Toastify__progress-bar--error {
+  background: #ba1a1a !important;
+}
+
+.Toastify__progress-bar--warning {
+  background: #fed65b !important;
+}
+
+.Toastify__progress-bar--info {
+  background: #D4AF37 !important;
+}
+
+/* ======================================================
+   1. Text Selection (تظليل الكلام)
+====================================================== */
+::selection {
+  background-color: #735c00; /* Tailwind Blue 600 */
+  color: #ffffff;
+}
+
+/* ======================================================
+   2. Standard Scrollbar (Firefox & Next-Gen Browsers)
+====================================================== */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #735c00 #f8fafc; /* thumb / track */
+}
+
+/* ======================================================
+   3. WebKit Scrollbar (Chrome, Edge, Safari)
+====================================================== */
+::-webkit-scrollbar {
+  width: 8px;  /* السكرول الرأسي */
+  height: 8px; /* السكرول الأفقي لو وجد */
+}
+
+/* الخلفية اللي بيجري عليها البار */
+::-webkit-scrollbar-track {
+  background: #735c00;
+}
+
+/* البار المتحرك نفسه */
+::-webkit-scrollbar-thumb {
+  background: #735c00;
+  border-radius: 9999px; /* خلاه Capsule */
+  border: 2px solid #f8fafc; /* [تريك سينيور شرحها تحت] */
+}
+
+/* البار لما تقف عليه بالماوس */
+::-webkit-scrollbar-thumb:hover {
+  background: #735c00;
+}
