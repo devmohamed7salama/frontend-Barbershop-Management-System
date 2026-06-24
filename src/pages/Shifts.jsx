@@ -195,16 +195,16 @@ export default function Shifts() {
             </div>
 
             <div className="d-flex align-items-center gap-4 flex-wrap">
-              <div>
+              {/* <div>
                 <div className="text-muted" style={{ fontSize: '12px' }}>إجمالي الفواتير</div>
                 <div style={{ fontWeight: 800, color: '#1A1A1A', fontSize: '18px' }}>{activeShift.total_orders || 0} فواتير</div>
-              </div>
-              <div className="border-start ps-3" style={{ height: '40px' }}></div>
-              <div>
+              </div> */}
+              {/* <div className="border-start ps-3" style={{ height: '40px' }}></div> */}
+              {/* <div>
                 <div className="text-muted" style={{ fontSize: '12px' }}>إجمالي الدخل الحالي</div>
                 <div style={{ fontWeight: 800, color: '#D4AF37', fontSize: '18px' }}>{formatPrice(activeShift.total_revenue)}</div>
-              </div>
-              <div className="border-start ps-3" style={{ height: '40px' }}></div>
+              </div> */}
+              {/* <div className="border-start ps-3" style={{ height: '40px' }}></div> */}
               <button
                 onClick={() => handleOpenCloseModal(activeShift)}
                 className="btn btn-danger d-flex align-items-center gap-2 py-2 px-3"
