@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { getInvoices } from '../services/invoices';
 import useApi from '../hooks/useApi';
 import { Modal, Button, Form } from 'react-bootstrap';
+import AdminPagination from '../components/AdminPagination';
+
 
 export default function Invoices() {
   // Filter States
@@ -23,11 +25,8 @@ export default function Invoices() {
     return getInvoices(params);
   }, [dateFilter, currentPage]);
 
-  // Caching configuration using useApi
-  const cacheKey = `invoices-list-${dateFilter}-${currentPage}`;
   const { data: response, loading, refetch } = useApi(fetchInvoicesList, {
     dependencies: [dateFilter, currentPage],
-    cacheKey,
   });
 
   // Reset page when filters change
@@ -49,6 +48,39 @@ export default function Invoices() {
     return parseFloat(price || 0).toLocaleString('ar-EG', { style: 'currency', currency: 'EGP' });
   };
 
+  const getReceiptUrl = (invoiceId, print = false) => {
+    let baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+    baseUrl = baseUrl.replace(/\/api\/?$/, ''); // Remove trailing /api
+    return `${baseUrl}/invoices/print/${invoiceId}${print ? '?print=true' : ''}`;
+  };
+
+  const formatWhatsAppPhone = (phone) => {
+    if (!phone) return '';
+    const cleanPhone = phone.replace(/\D/g, '');
+    if (cleanPhone.startsWith('01')) {
+      return '2' + cleanPhone; // Egypt country code prefix
+    }
+    if (cleanPhone.startsWith('1')) {
+      return '20' + cleanPhone; // missing leading zero
+    }
+    return cleanPhone;
+  };
+
+  const handleWhatsAppShare = (invoice) => {
+    const phone = formatWhatsAppPhone(invoice.customer?.phone || invoice.customer?.customer_phone);
+    if (!phone) {
+      alert('عذراً، رقم الهاتف غير متوفر لهذه الفاتورة.');
+      return;
+    }
+    const invoiceNumber = invoice.invoice_number || `#INV-${invoice.id}`;
+    const receiptUrl = getReceiptUrl(invoice.id);
+    const message = `مرحباً ${invoice.customer?.name || invoice.customer?.customer_name || 'عميلنا العزيز'}،\n\nيسعدنا زيارتك لصالون المقص الذهبي. 💈✨\n\nهذه تفاصيل فاتورتك رقم ${invoiceNumber} بقيمة ${formatPrice(invoice.total_price)}.\nيمكنك عرضها وطباعتها من خلال الرابط التالي:\n${receiptUrl}\n\nنشكرك لاختيارك صالوننا الفاخر! ❤️`;
+    
+    const encodedText = encodeURIComponent(message);
+    const waUrl = `https://wa.me/${phone}?text=${encodedText}`;
+    window.open(waUrl, '_blank');
+  };
+
   const handleOpenDetails = (invoice) => {
     setSelectedInvoice(invoice);
     setShowDetailsModal(true);
@@ -57,15 +89,15 @@ export default function Invoices() {
   return (
     <div style={{ direction: 'rtl', textAlign: 'right', fontFamily: 'Cairo, sans-serif' }} className="p-md-3">
       {/* Header Area */}
-      <div className="d-flex justify-content-between align-items-end mb-4">
+      <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center w-100 mb-4 gap-3">
         <div>
           <h2 className="mb-1" style={{ fontWeight: 800, color: '#1A1A1A' }}>الفواتير</h2>
           <p className="text-muted mb-0">متابعة الفواتير الصادرة للعملاء ومراجعة تفاصيل المعاملات المالية.</p>
         </div>
-        <div className="d-flex gap-2">
+        <div className="d-flex flex-column flex-sm-row gap-2 w-100 w-sm-auto">
           <Link 
             to="/invoices/quick"
-            className="btn d-flex align-items-center gap-2"
+            className="btn d-flex align-items-center justify-content-center gap-2 w-100 w-sm-auto"
             style={{ backgroundColor: '#D4AF37', color: '#1A1A1A', fontWeight: 700, borderRadius: '8px', padding: '10px 20px', border: 'none' }}
           >
             <span className="material-symbols-outlined">flash_on</span>
@@ -73,7 +105,7 @@ export default function Invoices() {
           </Link>
           <Link 
             to="/invoices/new"
-            className="btn d-flex align-items-center gap-2"
+            className="btn d-flex align-items-center justify-content-center gap-2 w-100 w-sm-auto"
             style={{ backgroundColor: '#1A1A1A', color: '#ffffff', fontWeight: 700, borderRadius: '8px', padding: '10px 20px', border: 'none' }}
           >
             <span className="material-symbols-outlined">add</span>
@@ -148,7 +180,7 @@ export default function Invoices() {
                 {invoicesList.map((invoice) => (
                   <tr key={invoice.id} style={{ height: '64px' }}>
                     <td className="px-4 py-3" style={{ fontWeight: 700, color: '#1A1A1A' }}>
-                      #INV-{invoice.id}
+                      {invoice.invoice_number || `#INV-${invoice.id}`}
                     </td>
                     <td className="px-4 py-3">
                       <div className="d-flex align-items-center gap-2">
@@ -209,44 +241,11 @@ export default function Invoices() {
               <span className="text-muted" style={{ fontSize: '12px' }}>
                 عرض الصفحة {meta.current_page} من أصل {meta.last_page}
               </span>
-              <nav aria-label="Page navigation">
-                <ul className="pagination pagination-sm mb-0 gap-1">
-                  <li className={`page-item ${meta.current_page === 1 ? 'disabled' : ''}`}>
-                    <button 
-                      className="page-link border-0" 
-                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                      style={{ color: '#1A1A1A', borderRadius: '4px' }}
-                    >
-                      السابق
-                    </button>
-                  </li>
-                  {[...Array(meta.last_page)].map((_, i) => (
-                    <li key={i} className={`page-item ${meta.current_page === i + 1 ? 'active' : ''}`}>
-                      <button 
-                        className="page-link border-0" 
-                        onClick={() => setCurrentPage(i + 1)}
-                        style={{ 
-                          backgroundColor: meta.current_page === i + 1 ? '#1A1A1A' : 'transparent', 
-                          color: meta.current_page === i + 1 ? '#ffffff' : '#1A1A1A',
-                          borderRadius: '4px',
-                          fontWeight: 600
-                        }}
-                      >
-                        {i + 1}
-                      </button>
-                    </li>
-                  ))}
-                  <li className={`page-item ${meta.current_page === meta.last_page ? 'disabled' : ''}`}>
-                    <button 
-                      className="page-link border-0" 
-                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, meta.last_page))}
-                      style={{ color: '#1A1A1A', borderRadius: '4px' }}
-                    >
-                      التالي
-                    </button>
-                  </li>
-                </ul>
-              </nav>
+              <AdminPagination
+                currentPage={currentPage}
+                lastPage={meta.last_page}
+                onPageChange={(page) => setCurrentPage(page)}
+              />
             </div>
           )}
         </div>
@@ -269,7 +268,7 @@ export default function Invoices() {
 
               {/* Receipt Body */}
               <div className="row g-2" style={{ fontSize: '13px' }}>
-                <div className="col-6"><strong>رقم الفاتورة:</strong> #INV-{selectedInvoice.id}</div>
+                <div className="col-6"><strong>رقم الفاتورة:</strong> {selectedInvoice.invoice_number || `#INV-${selectedInvoice.id}`}</div>
                 <div className="col-6 text-start"><strong>تاريخ الصدور:</strong> {selectedInvoice.created_at}</div>
                 
                 <div className="col-6"><strong>العميل:</strong> {selectedInvoice.customer?.name || selectedInvoice.customer?.customer_name || 'عميل زائر'}</div>
@@ -289,18 +288,16 @@ export default function Invoices() {
               {/* Receipt Items */}
               <div className="mb-3">
                 <h6 style={{ fontWeight: 700, fontSize: '14px', color: '#1A1A1A', marginBottom: '8px' }}>الخدمات المقدمة:</h6>
-                <ul className="list-group list-group-flush pr-0">
                   {selectedInvoice.items?.map((item, idx) => (
-                    <li key={idx} className="list-group-item d-flex justify-content-between align-items-center px-0 py-2 bg-transparent">
+                    <div key={idx} className="d-flex justify-content-between align-items-center px-0 py-2 bg-transparent">
                       <span>{item.service_name}</span>
                       <span style={{ fontWeight: 600 }}>{formatPrice(item.price || item.service_price)}</span>
-                    </li>
+                    </div>
                   ))}
-                  <li className="list-group-item d-flex justify-content-between align-items-center px-0 py-2 bg-transparent" style={{ borderTop: '2px solid #c4c7c7' }}>
+                  <div className="d-flex justify-content-between align-items-center px-0 py-2 bg-transparent" style={{ borderTop: '2px solid #c4c7c7' }}>
                     <span style={{ fontWeight: 700 }}>الإجمالي الكلي:</span>
                     <span style={{ fontWeight: 800, color: '#D4AF37', fontSize: '16px' }}>{formatPrice(selectedInvoice.total_price)}</span>
-                  </li>
-                </ul>
+                  </div>
               </div>
 
               {/* Receipt Footer */}
@@ -311,8 +308,48 @@ export default function Invoices() {
             </div>
           )}
         </Modal.Body>
-        <Modal.Footer className="border-0">
-          <Button variant="dark" onClick={() => setShowDetailsModal(false)} style={{ fontFamily: 'Cairo', fontWeight: 600, borderRadius: '8px' }}>
+        <Modal.Footer className="border-0 d-flex flex-wrap justify-content-between gap-2" style={{ fontFamily: 'Cairo' }}>
+          <div className="d-flex gap-2 flex-grow-1">
+            {selectedInvoice && (
+              <>
+                <a 
+                  href={getReceiptUrl(selectedInvoice.id, false)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-outline-dark d-flex align-items-center gap-2"
+                  style={{ fontFamily: 'Cairo', fontWeight: 600, borderRadius: '8px', fontSize: '13px', textDecoration: 'none' }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>visibility</span>
+                  <span>عرض الفاتورة</span>
+                </a>
+
+                <a 
+                  href={getReceiptUrl(selectedInvoice.id, true)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-warning d-flex align-items-center gap-2 text-dark"
+                  style={{ fontFamily: 'Cairo', fontWeight: 700, borderRadius: '8px', fontSize: '13px', backgroundColor: '#D4AF37', border: 'none', textDecoration: 'none' }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>print</span>
+                  <span>طباعة وتنزيل</span>
+                </a>
+
+                {selectedInvoice.customer?.phone && selectedInvoice.customer?.phone !== '0000000000' && (
+                  <button 
+                    onClick={() => handleWhatsAppShare(selectedInvoice)}
+                    className="btn text-white d-flex align-items-center gap-2"
+                    style={{ fontFamily: 'Cairo', fontWeight: 600, borderRadius: '8px', fontSize: '13px', backgroundColor: '#25D366', border: 'none' }}
+                  >
+                    <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.457L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.37 9.864-9.799.002-2.63-1.023-5.101-2.885-6.965C16.588 2.051 14.12 1.01 11.5 1.012c-5.438 0-9.863 4.372-9.867 9.8-.001 2.01.528 3.975 1.532 5.727L2.105 20.3l3.966-1.03c1.636.886 3.14 1.34 4.576 1.34h.001zm10.744-7.405c-.272-.137-1.61-.795-1.86-.886-.25-.092-.432-.137-.61.137-.182.273-.706.886-.865 1.069-.158.183-.317.206-.59.068-.272-.137-1.15-.425-2.19-1.353-.807-.72-1.352-1.61-1.51-1.883-.158-.273-.017-.42.12-.556.123-.122.272-.319.408-.478.136-.159.182-.272.272-.455.09-.182.046-.341-.023-.478-.069-.137-.61-1.472-.837-2.017-.22-.53-.442-.457-.61-.466-.157-.008-.339-.01-.52-.01-.182 0-.477.067-.727.341-.25.272-.953.932-.953 2.273s.977 2.636 1.114 2.818c.137.182 1.92 2.932 4.654 4.113.65.28 1.157.447 1.554.573.653.208 1.248.178 1.717.108.523-.078 1.61-.659 1.837-1.295.227-.636.227-1.182.158-1.295-.069-.114-.25-.182-.523-.319z"/>
+                    </svg>
+                    <span>واتساب</span>
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+          <Button variant="dark" onClick={() => setShowDetailsModal(false)} style={{ fontFamily: 'Cairo', fontWeight: 600, borderRadius: '8px', fontSize: '13px' }}>
             إغلاق
           </Button>
         </Modal.Footer>

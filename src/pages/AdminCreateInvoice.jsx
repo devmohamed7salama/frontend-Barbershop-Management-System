@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { getBarbers } from '../services/barbers';
 import { getAppointments, updateAppointmentStatus } from '../services/appointments';
+import { getDashboardStats } from '../services/dashboard';
 import useApi from '../hooks/useApi';
 import { toast } from 'react-toastify';
 
@@ -12,22 +13,36 @@ export default function AdminCreateInvoice() {
 
   const navigate = useNavigate();
 
-  // Load barbers and appointments dynamically with caching
-  const { data: barbersResponse, loading: loadingBarbers } = useApi(getBarbers, {
-    cacheKey: 'barbers-list-dropdown',
+  // Load active shift status dynamically
+  const { data: statsResponse, loading: loadingStats } = useApi(getDashboardStats, {
+    cacheKey: 'active-shift-check-invoice',
+    cacheTime: 1000, // 1 second freshness
   });
 
-  const { data: appointmentsResponse, loading: loadingAppointments } = useApi(getAppointments, {
-    cacheKey: 'appointments-list-dropdown',
+  // Load barbers and appointments dynamically without caching
+  const { data: barbersResponse, loading: loadingBarbers } = useApi(() => getBarbers(), {
+    dependencies: [],
   });
+
+  const { data: appointmentsResponse, loading: loadingAppointments } = useApi(() => getAppointments({ status: 'pending', per_page: 100 }), {
+    dependencies: [],
+  });
+
+  const statsData = statsResponse?.data || statsResponse || {};
+  const recentShifts = statsData.recent_shifts || [];
+  const hasActiveShift = recentShifts.length > 0 && recentShifts[0].shift_status === 'open';
 
   // Extract list items from response
-  const barbers = barbersResponse?.data?.data || barbersResponse?.data || [];
-  const appointments = (appointmentsResponse?.data?.data || appointmentsResponse?.data || [])
-    .filter(appt => appt.appointment_status !== 'completed');
+  const barbers = (barbersResponse?.data?.data || barbersResponse?.data || [])
+    .filter(barber => barber.barber_status === 'available');
+  const appointments = appointmentsResponse?.data?.data || appointmentsResponse?.data || [];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!hasActiveShift) {
+      toast.error('لا يمكن إنشاء فاتورة بدون بدء وردية عمل نشطة.');
+      return;
+    }
     if (!barberId || !appointmentId) {
       toast.error('يرجى اختيار الحلاق والموعد المرتبط بالفاتورة.');
       return;
@@ -51,6 +66,49 @@ export default function AdminCreateInvoice() {
       setIsSubmitting(false);
     }
   };
+
+  if (loadingStats || loadingBarbers || loadingAppointments) {
+    return (
+      <div className="text-center py-5" style={{ direction: 'rtl', textAlign: 'right', fontFamily: 'Cairo, sans-serif' }}>
+        <div className="spinner-border text-warning" role="status" style={{ width: '3rem', height: '3rem' }}>
+          <span className="visually-hidden">جاري التحميل...</span>
+        </div>
+        <p className="mt-3 text-muted" style={{ fontWeight: 600 }}>جاري التحقق من حالة الوردية وتحميل البيانات...</p>
+      </div>
+    );
+  }
+
+  if (!hasActiveShift) {
+    return (
+      <div className="container mt-5" style={{ direction: 'rtl', textAlign: 'right', fontFamily: 'Cairo, sans-serif' }}>
+        <div className="card shadow-sm border-0 p-5 text-center" style={{ maxWidth: '600px', margin: '0 auto', borderRadius: '12px', backgroundColor: '#ffffff' }}>
+          <div className="my-3 text-danger">
+            <span className="material-symbols-outlined text-warning" style={{ fontSize: '72px' }}>warning</span>
+          </div>
+          <h3 className="mb-3" style={{ fontWeight: 800, color: '#1A1A1A' }}>عذراً، لا توجد وردية مفتوحة!</h3>
+          <p className="text-muted mb-4" style={{ fontSize: '14px', lineHeight: '1.6' }}>
+            نظام إدارة الصالون يتطلب بدء وردية جديدة (شيفت) قبل التمكن من إصدار أي فواتير أو إتمام الحجوزات. يرجى التوجه لصفحة الورديات لبدء وردية عمل جديدة.
+          </p>
+          <div className="d-flex justify-content-center gap-3">
+            <Link
+              to="/dashboard"
+              className="btn btn-light"
+              style={{ fontWeight: 700, borderRadius: '8px', padding: '10px 20px', fontSize: '13px' }}
+            >
+              العودة للرئيسية
+            </Link>
+            <Link
+              to="/shifts"
+              className="btn text-white"
+              style={{ backgroundColor: '#D4AF37', fontWeight: 700, borderRadius: '8px', padding: '10px 20px', border: 'none', fontSize: '13px' }}
+            >
+              الذهاب لصفحة الورديات لبدء وردية
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mt-4" style={{ direction: 'rtl', textAlign: 'right', fontFamily: 'Cairo, sans-serif' }}>

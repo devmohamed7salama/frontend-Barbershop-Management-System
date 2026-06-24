@@ -4,6 +4,8 @@ import useApi from '../hooks/useApi';
 import useDebounce from '../hooks/useDebounce';
 import { toast } from 'react-toastify';
 import { Modal, Button, Form } from 'react-bootstrap';
+import AdminPagination from '../components/AdminPagination';
+
 
 export default function Customers() {
   // Filter States
@@ -52,6 +54,17 @@ export default function Customers() {
   const meta = response?.data?.meta || response?.meta || null;
 
   // Helpers
+  const getWhatsAppLink = (phone) => {
+    if (!phone) return '#';
+    let cleanPhone = phone.replace(/\D/g, '');
+    if (cleanPhone.startsWith('01') && cleanPhone.length === 11) {
+      cleanPhone = '2' + cleanPhone;
+    } else if (cleanPhone.startsWith('1') && cleanPhone.length === 10) {
+      cleanPhone = '20' + cleanPhone;
+    }
+    return `https://wa.me/${cleanPhone}`;
+  };
+
   const getInitials = (name) => {
     if (!name) return 'ع';
     return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
@@ -143,14 +156,14 @@ export default function Customers() {
   return (
     <div style={{ direction: 'rtl', textAlign: 'right', fontFamily: 'Cairo, sans-serif' }} className="p-md-3">
       {/* Header Area */}
-      <div className="d-flex justify-content-between align-items-end mb-4">
+      <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center w-100 mb-4 gap-3">
         <div>
           <h2 className="mb-1" style={{ fontWeight: 800, color: '#1A1A1A' }}>العملاء</h2>
           <p className="text-muted mb-0">إدارة ملفات العملاء وسجل زياراتهم ونسب الإنفاق بالصالون.</p>
         </div>
         <button
           onClick={handleOpenAdd}
-          className="btn d-flex align-items-center gap-2"
+          className="btn d-flex align-items-center justify-content-center gap-2 w-100 w-sm-auto"
           style={{ backgroundColor: '#D4AF37', color: '#1A1A1A', fontWeight: 700, borderRadius: '8px', padding: '10px 20px', border: 'none' }}
         >
           <span className="material-symbols-outlined">person_add</span>
@@ -248,15 +261,43 @@ export default function Customers() {
                     </td>
                     <td className="px-4 py-3 text-center">
                       <div className="d-flex align-items-center justify-content-center gap-2">
+                        {/* WhatsApp Button */}
+                        {customer.customer_phone && (
+                          <a
+                            href={getWhatsAppLink(customer.customer_phone)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn btn-sm btn-success p-2 d-inline-flex align-items-center text-white"
+                            title="تواصل عبر واتساب"
+                            style={{ borderRadius: '6px', backgroundColor: '#25D366', borderColor: '#25D366' }}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M12.031 2c-5.516 0-9.988 4.472-9.988 9.987a9.92 9.92 0 0 0 1.332 4.981L2 22l5.202-1.362a9.92 9.92 0 0 0 4.829 1.237h.004c5.516 0 9.988-4.472 9.988-9.987a9.96 9.96 0 0 0-9.992-9.888zm5.783 14.382c-.247.697-1.444 1.293-1.986 1.344-.492.046-1.127.082-3.218-.788-2.673-1.113-4.387-3.83-4.52-4.007-.133-.178-1.074-1.428-1.074-2.723 0-1.296.677-1.932.918-2.193.24-.262.532-.328.71-.328.177 0 .354.002.507.009.16.007.375-.062.587.45.22.532.753 1.838.82 1.97.065.13.11.284.02.464-.09.18-.133.293-.264.445-.133.15-.278.337-.397.453-.133.13-.272.272-.116.54.156.267.69 1.135 1.48 1.84.975.87 1.792 1.14 2.052 1.272.26.133.41.11.564-.065.155-.178.665-.778.843-1.042.177-.263.354-.22.597-.13.243.09 1.543.727 1.81.86.265.133.442.198.508.312.067.115.067.665-.181 1.361z"/>
+                            </svg>
+                          </a>
+                        )}
+
+                        {/* Call Button */}
+                        {customer.customer_phone && (
+                          <a
+                            href={`tel:${customer.customer_phone}`}
+                            className="btn btn-sm btn-primary p-2 d-inline-flex align-items-center text-white"
+                            title="اتصال هاتفي"
+                            style={{ borderRadius: '6px', backgroundColor: '#0d6efd', borderColor: '#0d6efd' }}
+                          >
+                            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>call</span>
+                          </a>
+                        )}
+
                         {/* Edit Button */}
-                        <button
+                        {/* <button
                           onClick={() => handleOpenEdit(customer)}
                           className="btn btn-sm btn-light p-2 d-inline-flex align-items-center"
                           title="تعديل البيانات"
                           style={{ borderRadius: '6px' }}
                         >
                           <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#444748' }}>edit</span>
-                        </button>
+                        </button> */}
 
 
                       </div>
@@ -273,44 +314,11 @@ export default function Customers() {
               <span className="text-muted" style={{ fontSize: '12px' }}>
                 عرض الصفحة {meta.current_page} من أصل {meta.last_page}
               </span>
-              <nav aria-label="Page navigation">
-                <ul className="pagination pagination-sm mb-0 gap-1">
-                  <li className={`page-item ${meta.current_page === 1 ? 'disabled' : ''}`}>
-                    <button
-                      className="page-link border-0"
-                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                      style={{ color: '#1A1A1A', borderRadius: '4px' }}
-                    >
-                      السابق
-                    </button>
-                  </li>
-                  {[...Array(meta.last_page)].map((_, i) => (
-                    <li key={i} className={`page-item ${meta.current_page === i + 1 ? 'active' : ''}`}>
-                      <button
-                        className="page-link border-0"
-                        onClick={() => setCurrentPage(i + 1)}
-                        style={{
-                          backgroundColor: meta.current_page === i + 1 ? '#1A1A1A' : 'transparent',
-                          color: meta.current_page === i + 1 ? '#ffffff' : '#1A1A1A',
-                          borderRadius: '4px',
-                          fontWeight: 600
-                        }}
-                      >
-                        {i + 1}
-                      </button>
-                    </li>
-                  ))}
-                  <li className={`page-item ${meta.current_page === meta.last_page ? 'disabled' : ''}`}>
-                    <button
-                      className="page-link border-0"
-                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, meta.last_page))}
-                      style={{ color: '#1A1A1A', borderRadius: '4px' }}
-                    >
-                      التالي
-                    </button>
-                  </li>
-                </ul>
-              </nav>
+              <AdminPagination
+                currentPage={currentPage}
+                lastPage={meta.last_page}
+                onPageChange={(page) => setCurrentPage(page)}
+              />
             </div>
           )}
         </div>

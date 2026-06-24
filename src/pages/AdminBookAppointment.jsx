@@ -71,6 +71,7 @@ export default function AdminBookAppointment() {
         appointment_notes: notes,
       });
       toast.success('تم حجز الموعد بنجاح!');
+      window.dispatchEvent(new Event('queue-updated'));
       navigate('/appointments');
     } catch (error) {
       console.error(error);

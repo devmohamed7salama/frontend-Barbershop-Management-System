@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 // Global in-memory cache store
-const apiCache = new Map();
+export const apiCache = new Map();
 
 /**
  * Custom Hook for making API requests with optional caching.

@@ -6,6 +6,8 @@ import useApi from '../hooks/useApi';
 import useDebounce from '../hooks/useDebounce';
 import { toast } from 'react-toastify';
 import { Modal, Button, Form } from 'react-bootstrap';
+import AdminPagination from '../components/AdminPagination';
+
 
 export default function Appointments() {
   // Filter States
@@ -45,11 +47,8 @@ export default function Appointments() {
     return getAppointments(params);
   }, [debouncedSearch, statusFilter, dateFilter, currentPage]);
 
-  // Caching configuration using useApi
-  const cacheKey = `appointments-list-${debouncedSearch}-${statusFilter}-${dateFilter}-${currentPage}`;
   const { data: response, loading, refetch, invalidateCache } = useApi(fetchAppointments, {
     dependencies: [debouncedSearch, statusFilter, dateFilter, currentPage],
-    cacheKey,
   });
 
   // Reset page when filters change
@@ -71,6 +70,18 @@ export default function Appointments() {
   const meta = response?.data?.meta || response?.meta || null;
 
   // Helpers
+  const getWhatsAppLink = (phone, apptDate, apptTime) => {
+    if (!phone) return '#';
+    let cleanPhone = phone.replace(/\D/g, '');
+    if (cleanPhone.startsWith('01') && cleanPhone.length === 11) {
+      cleanPhone = '2' + cleanPhone;
+    } else if (cleanPhone.startsWith('1') && cleanPhone.length === 10) {
+      cleanPhone = '20' + cleanPhone;
+    }
+    const message = encodeURIComponent(`مرحباً، نود تذكيركم بموعدكم في صالون الحلاقة بتاريخ ${apptDate} الساعة ${apptTime}. نرجو الحضور في الموعد أو إبلاغنا في حال الرغبة في التعديل.`);
+    return `https://wa.me/${cleanPhone}?text=${message}`;
+  };
+
   const getInitials = (name) => {
     if (!name) return 'ع';
     return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
@@ -130,6 +141,7 @@ export default function Appointments() {
       setSubmittingStatus(true);
       await updateAppointmentStatus(statusConfirmAppt.id, { appointment_status: statusConfirmTarget });
       toast.success('تم تحديث حالة الموعد بنجاح');
+      window.dispatchEvent(new Event('queue-updated'));
       setShowStatusConfirmModal(false);
       invalidateCache();
       refetch();
@@ -156,6 +168,7 @@ export default function Appointments() {
         barber_id: parseInt(selectedBarberId),
       });
       toast.success('تم إكمال الموعد بنجاح وإنشاء الفاتورة تلقائياً!');
+      window.dispatchEvent(new Event('queue-updated'));
       setShowBarberModal(false);
       invalidateCache();
       refetch();
@@ -178,6 +191,7 @@ export default function Appointments() {
       setSubmittingDelete(true);
       await deleteAppointment(apptToDelete.id);
       toast.success('تم حذف الموعد بنجاح.');
+      window.dispatchEvent(new Event('queue-updated'));
       setShowDeleteModal(false);
       invalidateCache();
       refetch();
@@ -193,14 +207,14 @@ export default function Appointments() {
   return (
     <div style={{ direction: 'rtl', textAlign: 'right', fontFamily: 'Cairo, sans-serif' }} className='p-md-3'>
       {/* Header Area */}
-      <div className="d-flex justify-content-between align-items-end mb-4 ">
+      <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center w-100 mb-4 gap-3">
         <div>
           <h2 className="mb-1" style={{ fontWeight: 800, color: '#1A1A1A' }}>المواعيد</h2>
           <p className="text-muted mb-0">إدارة جدول حجوزات الصالون ومتابعة المواعيد القادمة للعملاء.</p>
         </div>
         <Link
           to="/appointments/new"
-          className="btn d-flex align-items-center gap-2"
+          className="btn d-flex align-items-center justify-content-center gap-2 w-100 w-sm-auto"
           style={{ backgroundColor: '#D4AF37', color: '#1A1A1A', fontWeight: 700, borderRadius: '8px', padding: '10px 20px', border: 'none' }}
         >
           <span className="material-symbols-outlined">event_available</span>
@@ -363,6 +377,34 @@ export default function Appointments() {
                           <span className="material-symbols-outlined" style={{ fontSize: '20px', color: '#444748' }}>visibility</span>
                         </button>
 
+                        {/* WhatsApp Button (If pending) */}
+                        {appt.appointment_status === 'pending' && appt.customer?.customer_phone && (
+                          <a
+                            href={getWhatsAppLink(appt.customer.customer_phone, appt.appointment_date, appt.appointment_time)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn btn-sm btn-success p-2 d-inline-flex align-items-center text-white"
+                            title="تواصل عبر واتساب"
+                            style={{ borderRadius: '6px', backgroundColor: '#25D366', borderColor: '#25D366' }}
+                          >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12.031 2c-5.516 0-9.988 4.472-9.988 9.987a9.92 9.92 0 0 0 1.332 4.981L2 22l5.202-1.362a9.92 9.92 0 0 0 4.829 1.237h.004c5.516 0 9.988-4.472 9.988-9.987a9.96 9.96 0 0 0-9.992-9.888zm5.783 14.382c-.247.697-1.444 1.293-1.986 1.344-.492.046-1.127.082-3.218-.788-2.673-1.113-4.387-3.83-4.52-4.007-.133-.178-1.074-1.428-1.074-2.723 0-1.296.677-1.932.918-2.193.24-.262.532-.328.71-.328.177 0 .354.002.507.009.16.007.375-.062.587.45.22.532.753 1.838.82 1.97.065.13.11.284.02.464-.09.18-.133.293-.264.445-.133.15-.278.337-.397.453-.133.13-.272.272-.116.54.156.267.69 1.135 1.48 1.84.975.87 1.792 1.14 2.052 1.272.26.133.41.11.564-.065.155-.178.665-.778.843-1.042.177-.263.354-.22.597-.13.243.09 1.543.727 1.81.86.265.133.442.198.508.312.067.115.067.665-.181 1.361z"/>
+                          </svg>
+                          </a>
+                        )}
+
+                        {/* Call Button (If pending) */}
+                        {appt.appointment_status === 'pending' && appt.customer?.customer_phone && (
+                          <a
+                            href={`tel:${appt.customer.customer_phone}`}
+                            className="btn btn-sm btn-primary p-2 d-inline-flex align-items-center text-white"
+                            title="اتصال هاتفي"
+                            style={{ borderRadius: '6px', backgroundColor: '#0d6efd', borderColor: '#0d6efd' }}
+                          >
+                            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>call</span>
+                          </a>
+                        )}
+
                         {/* Complete Button (If pending) */}
                         {appt.appointment_status === 'pending' && (
                           <button
@@ -426,69 +468,11 @@ export default function Appointments() {
             <span style={{ fontSize: '13px', color: '#747878', fontWeight: 500 }}>
               عرض الصفحة {meta.current_page} من {meta.last_page} (إجمالي المواعيد: {meta.total})
             </span>
-            <div className="d-flex align-items-center gap-1">
-              {/* First Page */}
-              <button
-                className="btn btn-sm btn-outline-secondary px-2 py-1"
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage(1)}
-                style={{ borderRadius: '6px' }}
-              >
-                الأولى
-              </button>
-
-              {/* Prev Button */}
-              <button
-                className="btn btn-sm btn-outline-secondary px-2 py-1 d-inline-flex align-items-center"
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage(prev => prev - 1)}
-                style={{ borderRadius: '6px' }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>chevron_right</span>
-              </button>
-
-              {/* Page numbers (brief display) */}
-              {Array.from({ length: Math.min(5, meta.last_page) }, (_, idx) => {
-                // Calculate display pages centered around current page
-                let targetPage = currentPage - 2 + idx;
-                if (currentPage <= 2) targetPage = idx + 1;
-                if (currentPage >= meta.last_page - 1) targetPage = meta.last_page - 4 + idx;
-
-                // Fallbacks/constraints
-                if (targetPage < 1 || targetPage > meta.last_page) return null;
-
-                return (
-                  <button
-                    key={targetPage}
-                    onClick={() => setCurrentPage(targetPage)}
-                    className={`btn btn-sm ${currentPage === targetPage ? 'btn-dark' : 'btn-outline-secondary'} px-3`}
-                    style={{ borderRadius: '6px', fontWeight: currentPage === targetPage ? 700 : 500 }}
-                  >
-                    {targetPage}
-                  </button>
-                );
-              })}
-
-              {/* Next Button */}
-              <button
-                className="btn btn-sm btn-outline-secondary px-2 py-1 d-inline-flex align-items-center"
-                disabled={currentPage === meta.last_page}
-                onClick={() => setCurrentPage(prev => prev + 1)}
-                style={{ borderRadius: '6px' }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>chevron_left</span>
-              </button>
-
-              {/* Last Page */}
-              <button
-                className="btn btn-sm btn-outline-secondary px-2 py-1"
-                disabled={currentPage === meta.last_page}
-                onClick={() => setCurrentPage(meta.last_page)}
-                style={{ borderRadius: '6px' }}
-              >
-                الأخيرة
-              </button>
-            </div>
+            <AdminPagination
+              currentPage={currentPage}
+              lastPage={meta.last_page}
+              onPageChange={(page) => setCurrentPage(page)}
+            />
           </div>
         )}
       </div>
@@ -511,7 +495,33 @@ export default function Appointments() {
                 </div>
                 <div>
                   <h5 className="mb-1" style={{ fontWeight: 700 }}>{selectedAppt.customer?.customer_name}</h5>
-                  <span style={{ fontSize: '13px', color: '#444748' }}>هاتف: {selectedAppt.customer?.customer_phone}</span>
+                  <div className="d-flex align-items-center gap-2 mt-1">
+                    <span style={{ fontSize: '13px', color: '#444748' }}>هاتف: {selectedAppt.customer?.customer_phone}</span>
+                    {selectedAppt.customer?.customer_phone && (
+                      <>
+                        <a
+                          href={`tel:${selectedAppt.customer.customer_phone}`}
+                          className="btn btn-sm btn-outline-primary py-0 px-2 d-inline-flex align-items-center gap-1"
+                          style={{ fontSize: '11px', borderRadius: '4px', height: '22px' }}
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>call</span>
+                          <span>اتصال</span>
+                        </a>
+                        <a
+                          href={getWhatsAppLink(selectedAppt.customer.customer_phone, selectedAppt.appointment_date, selectedAppt.appointment_time)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-sm btn-outline-success py-0 px-2 d-inline-flex align-items-center gap-1"
+                          style={{ fontSize: '11px', borderRadius: '4px', height: '22px' }}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12.031 2c-5.516 0-9.988 4.472-9.988 9.987a9.92 9.92 0 0 0 1.332 4.981L2 22l5.202-1.362a9.92 9.92 0 0 0 4.829 1.237h.004c5.516 0 9.988-4.472 9.988-9.987a9.96 9.96 0 0 0-9.992-9.888zm5.783 14.382c-.247.697-1.444 1.293-1.986 1.344-.492.046-1.127.082-3.218-.788-2.673-1.113-4.387-3.83-4.52-4.007-.133-.178-1.074-1.428-1.074-2.723 0-1.296.677-1.932.918-2.193.24-.262.532-.328.71-.328.177 0 .354.002.507.009.16.007.375-.062.587.45.22.532.753 1.838.82 1.97.065.13.11.284.02.464-.09.18-.133.293-.264.445-.133.15-.278.337-.397.453-.133.13-.272.272-.116.54.156.267.69 1.135 1.48 1.84.975.87 1.792 1.14 2.052 1.272.26.133.41.11.564-.065.155-.178.665-.778.843-1.042.177-.263.354-.22.597-.13.243.09 1.543.727 1.81.86.265.133.442.198.508.312.067.115.067.665-.181 1.361z"/>
+                          </svg>
+                          <span>واتساب</span>
+                        </a>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -539,18 +549,16 @@ export default function Appointments() {
 
                 <div className="col-12 border-top pt-2">
                   <div className="text-muted mb-1" style={{ fontSize: '12px' }}>الخدمات المطلوبة</div>
-                  <ul className="list-group list-group-flush pr-0">
                     {selectedAppt.services?.map((s) => (
-                      <li key={s.id} className="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                      <div key={s.id} className="d-flex justify-content-between align-items-center px-0 py-2">
                         <span>{s.service_name}</span>
                         <span style={{ fontWeight: 600 }}>{formatPrice(s.service_price)}</span>
-                      </li>
+                      </div>
                     ))}
-                    <li className="list-group-item d-flex justify-content-between align-items-center px-0 py-2" style={{ borderTop: '2px solid #e2e8f0' }}>
+                    <div className="d-flex justify-content-between align-items-center px-0 py-2" style={{ borderTop: '2px solid #e2e8f0' }}>
                       <span style={{ fontWeight: 700 }}>الإجمالي الكلي:</span>
                       <span style={{ fontWeight: 800, color: '#D4AF37', fontSize: '16px' }}>{formatPrice(selectedAppt.total_price || 0)}</span>
-                    </li>
-                  </ul>
+                    </div>
                 </div>
 
                 {selectedAppt.appointment_notes && (

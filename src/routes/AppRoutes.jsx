@@ -17,6 +17,8 @@ import AdminCreateInvoice from '../pages/AdminCreateInvoice';
 import AdminCreateQuickInvoice from '../pages/AdminCreateQuickInvoice';
 import Booking from '../pages/Booking';
 import Barbers from '../pages/Barbers';
+import Shifts from '../pages/Shifts';
+import MyAppointments from '../pages/MyAppointments';
 
 
 export default function AppRoutes() {
@@ -34,7 +36,9 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       >
+        <Route path="/" element={<Booking />} />
         <Route path="/book" element={<Booking />} />
+        <Route path="/my-appointments" element={<MyAppointments />} />
       </Route>
 
       {/* Protected Admin Layout Routes (Requires admin role) */}
@@ -46,6 +50,7 @@ export default function AppRoutes() {
         }
       >
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/shifts" element={<Shifts />} />
         <Route path="/appointments" element={<Appointments />} />
         <Route path="/appointments/new" element={<AdminBookAppointment />} />
         <Route path="/barbers" element={<Barbers />} />
@@ -57,8 +62,7 @@ export default function AppRoutes() {
       </Route>
 
       {/* Redirects */}
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

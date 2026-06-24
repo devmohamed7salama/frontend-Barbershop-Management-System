@@ -4,6 +4,8 @@ import useApi from '../hooks/useApi';
 import useDebounce from '../hooks/useDebounce';
 import { toast } from 'react-toastify';
 import { Modal, Button, Form } from 'react-bootstrap';
+import AdminPagination from '../components/AdminPagination';
+
 
 export default function Barbers() {
   // Filter States
@@ -212,14 +214,14 @@ export default function Barbers() {
   return (
     <div style={{ direction: 'rtl', textAlign: 'right', fontFamily: 'Cairo, sans-serif' }} className="p-md-3">
       {/* Header Area */}
-      <div className="d-flex justify-content-between align-items-end mb-4">
+      <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center w-100 mb-4 gap-3">
         <div>
           <h2 className="mb-1" style={{ fontWeight: 800, color: '#1A1A1A' }}>الحلاقين</h2>
           <p className="text-muted mb-0">إدارة طاقم عمل صالون الحلاقة، ومتابعة حالات تواجدهم، ورواتبهم الشهرية.</p>
         </div>
         <button
           onClick={handleOpenAdd}
-          className="btn d-flex align-items-center gap-2"
+          className="btn d-flex align-items-center justify-content-center gap-2 w-100 w-sm-auto"
           style={{ backgroundColor: '#D4AF37', color: '#1A1A1A', fontWeight: 700, borderRadius: '8px', padding: '10px 20px', border: 'none' }}
         >
           <span className="material-symbols-outlined">person_add</span>
@@ -382,61 +384,11 @@ export default function Barbers() {
             <span style={{ fontSize: '13px', color: '#747878', fontWeight: 500 }}>
               عرض الصفحة {meta.current_page} من {meta.last_page} (إجمالي الحلاقين: {meta.total})
             </span>
-            <div className="d-flex align-items-center gap-1">
-              <button
-                className="btn btn-sm btn-outline-secondary px-2 py-1"
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage(1)}
-                style={{ borderRadius: '6px' }}
-              >
-                الأولى
-              </button>
-
-              <button
-                className="btn btn-sm btn-outline-secondary px-2 py-1 d-inline-flex align-items-center"
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage(prev => prev - 1)}
-                style={{ borderRadius: '6px' }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>chevron_right</span>
-              </button>
-
-              {Array.from({ length: Math.min(5, meta.last_page) }, (_, idx) => {
-                let targetPage = currentPage - 2 + idx;
-                if (currentPage <= 2) targetPage = idx + 1;
-                if (currentPage >= meta.last_page - 1) targetPage = meta.last_page - 4 + idx;
-                if (targetPage < 1 || targetPage > meta.last_page) return null;
-
-                return (
-                  <button
-                    key={targetPage}
-                    onClick={() => setCurrentPage(targetPage)}
-                    className={`btn btn-sm ${currentPage === targetPage ? 'btn-dark' : 'btn-outline-secondary'} px-3`}
-                    style={{ borderRadius: '6px', fontWeight: currentPage === targetPage ? 700 : 500 }}
-                  >
-                    {targetPage}
-                  </button>
-                );
-              })}
-
-              <button
-                className="btn btn-sm btn-outline-secondary px-2 py-1 d-inline-flex align-items-center"
-                disabled={currentPage === meta.last_page}
-                onClick={() => setCurrentPage(prev => prev + 1)}
-                style={{ borderRadius: '6px' }}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>chevron_left</span>
-              </button>
-
-              <button
-                className="btn btn-sm btn-outline-secondary px-2 py-1"
-                disabled={currentPage === meta.last_page}
-                onClick={() => setCurrentPage(meta.last_page)}
-                style={{ borderRadius: '6px' }}
-              >
-                الأخيرة
-              </button>
-            </div>
+            <AdminPagination
+              currentPage={currentPage}
+              lastPage={meta.last_page}
+              onPageChange={(page) => setCurrentPage(page)}
+            />
           </div>
         )}
       </div>

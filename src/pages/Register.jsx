@@ -7,6 +7,7 @@ import '../App.css';
 export default function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,10 +25,22 @@ export default function Register() {
     }
   }, [isAuthenticated, user, navigate]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const phoneParam = params.get('phone');
+    if (phoneParam) {
+      setPhone(phoneParam);
+    }
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name || !email || !password) {
+    if (!name || !email || !phone || !password) {
       toast.error('يرجى ملء جميع الحقول المطلوبة.');
+      return;
+    }
+    if (phone.length !== 11) {
+      toast.error('يجب أن يتكون رقم الهاتف من 11 رقماً.');
       return;
     }
 
@@ -36,6 +49,7 @@ export default function Register() {
       await register({
         user_name: name,
         email,
+        phone,
         password,
         password_confirmation: password // To satisfy Laravel's personal access/auth requirements
       });
@@ -104,6 +118,26 @@ export default function Register() {
                 placeholder="john@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                disabled={isSubmitting}
+              />
+            </div>
+          </div>
+
+          {/* Phone input */}
+          <div className="form-group">
+            <label className="form-label" htmlFor="phone">
+              رقم الهاتف
+            </label>
+            <div className="input-container">
+              <span className="material-symbols-outlined input-icon">call</span>
+              <input
+                className="auth-input with-icon"
+                id="phone"
+                type="tel"
+                required
+                placeholder="01xxxxxxxxx"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
                 disabled={isSubmitting}
               />
             </div>

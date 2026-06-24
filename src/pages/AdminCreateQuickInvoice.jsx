@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { getBarbers } from '../services/barbers';
 import { getServices } from '../services/services';
 import { createQuickInvoice } from '../services/invoices';
+import { getDashboardStats } from '../services/dashboard';
 import useApi from '../hooks/useApi';
 import { toast } from 'react-toastify';
 
@@ -15,6 +16,12 @@ export default function AdminCreateQuickInvoice() {
 
   const navigate = useNavigate();
 
+  // Load active shift status dynamically
+  const { data: statsResponse, loading: loadingStats } = useApi(getDashboardStats, {
+    cacheKey: 'active-shift-check-quick-invoice',
+    cacheTime: 1000, // 1 second freshness
+  });
+
   // Load barbers and services dynamically with caching
   const { data: barbersResponse, loading: loadingBarbers } = useApi(getBarbers, {
     cacheKey: 'barbers-list-dropdown',
@@ -24,7 +31,12 @@ export default function AdminCreateQuickInvoice() {
     cacheKey: 'services-list-dropdown',
   });
 
-  const barbers = barbersResponse?.data?.data || barbersResponse?.data || [];
+  const statsData = statsResponse?.data || statsResponse || {};
+  const recentShifts = statsData.recent_shifts || [];
+  const hasActiveShift = recentShifts.length > 0 && recentShifts[0].shift_status === 'open';
+
+  const barbers = (barbersResponse?.data?.data || barbersResponse?.data || [])
+    .filter(barber => barber.barber_status === 'available');
   // Only show active / published services
   const services = (servicesResponse?.data?.data || servicesResponse?.data || [])
     .filter(s => s.service_status === 'published');
@@ -52,6 +64,11 @@ export default function AdminCreateQuickInvoice() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!hasActiveShift) {
+      toast.error('لا يمكن إنشاء فاتورة سريعة بدون بدء وردية عمل نشطة.');
+      return;
+    }
 
     // Validation
     if (!customerName.trim() || !customerPhone.trim() || !barberId) {
@@ -88,6 +105,49 @@ export default function AdminCreateQuickInvoice() {
       setIsSubmitting(false);
     }
   };
+
+  if (loadingStats || loadingBarbers || loadingServices) {
+    return (
+      <div className="text-center py-5" style={{ direction: 'rtl', textAlign: 'right', fontFamily: 'Cairo, sans-serif' }}>
+        <div className="spinner-border text-warning" role="status" style={{ width: '3rem', height: '3rem' }}>
+          <span className="visually-hidden">جاري التحميل...</span>
+        </div>
+        <p className="mt-3 text-muted" style={{ fontWeight: 600 }}>جاري التحقق من حالة الوردية وتحميل البيانات...</p>
+      </div>
+    );
+  }
+
+  if (!hasActiveShift) {
+    return (
+      <div className="container mt-5" style={{ direction: 'rtl', textAlign: 'right', fontFamily: 'Cairo, sans-serif' }}>
+        <div className="card shadow-sm border-0 p-5 text-center" style={{ maxWidth: '600px', margin: '0 auto', borderRadius: '12px', backgroundColor: '#ffffff' }}>
+          <div className="my-3 text-danger">
+            <span className="material-symbols-outlined text-warning" style={{ fontSize: '72px' }}>warning</span>
+          </div>
+          <h3 className="mb-3" style={{ fontWeight: 800, color: '#1A1A1A' }}>عذراً، لا توجد وردية مفتوحة!</h3>
+          <p className="text-muted mb-4" style={{ fontSize: '14px', lineHeight: '1.6' }}>
+            نظام إدارة الصالون يتطلب بدء وردية جديدة (شيفت) قبل التمكن من إصدار أي فواتير أو إتمام الحجوزات. يرجى التوجه لصفحة الورديات لبدء وردية عمل جديدة.
+          </p>
+          <div className="d-flex justify-content-center gap-3">
+            <Link
+              to="/dashboard"
+              className="btn btn-light"
+              style={{ fontWeight: 700, borderRadius: '8px', padding: '10px 20px', fontSize: '13px' }}
+            >
+              العودة للرئيسية
+            </Link>
+            <Link
+              to="/shifts"
+              className="btn text-white"
+              style={{ backgroundColor: '#D4AF37', fontWeight: 700, borderRadius: '8px', padding: '10px 20px', border: 'none', fontSize: '13px' }}
+            >
+              الذهاب لصفحة الورديات لبدء وردية
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mt-4" style={{ direction: 'rtl', textAlign: 'right', fontFamily: 'Cairo, sans-serif' }}>

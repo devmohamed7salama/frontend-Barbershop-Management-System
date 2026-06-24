@@ -30,3 +30,8 @@ export const updateAppointmentStatus = async (id, statusData) => {
   return response.data;
 };
 
+export const getQueueCount = async (params) => {
+  const response = await api.get('/appointments/queue-count', { params });
+  return response.data;
+};
+
