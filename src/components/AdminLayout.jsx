@@ -114,6 +114,7 @@ export default function AdminLayout() {
             <span>الفواتير</span>
           </NavLink>
         </nav>
+        
 
         {/* CTA */}
         <div className="sidebar-cta-container" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
