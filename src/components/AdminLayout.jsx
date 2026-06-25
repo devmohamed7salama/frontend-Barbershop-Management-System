@@ -113,8 +113,11 @@ export default function AdminLayout() {
             <span className="material-symbols-outlined">receipt_long</span>
             <span>الفواتير</span>
           </NavLink>
+          <NavLink to="/ratings" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={handleLinkClick}>
+            <span className="material-symbols-outlined">reviews</span>
+            <span>التقييمات</span>
+          </NavLink>
         </nav>
-         
 
         {/* CTA */}
         <div className="sidebar-cta-container" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>

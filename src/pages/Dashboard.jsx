@@ -198,6 +198,101 @@ export default function Dashboard() {
 
             </div>
           </div>
+          {/* الورديات الأخيرة */}
+          <div className="col-12 mb-4">
+            <div className="card shadow-sm border-0 p-4" style={{ borderRadius: '12px', backgroundColor: '#ffffff' }}>
+              <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-4 gap-3">
+                <div>
+                  <h5 className="mb-2" style={{ fontWeight: 800, color: '#1A1A1A', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span className="material-symbols-outlined text-warning" style={{ fontWeight: 700 }}>history</span>
+                    الورديات الأخيرة
+                  </h5>
+                  <p className="text-muted mb-0" style={{ fontSize: '13px' }}>سجل بآخر خمس ورديات تم العمل عليها في الصالون.</p>
+                </div>
+                <Link
+                  to="/shifts"
+                  className="btn d-flex align-items-center gap-2 text-nowrap"
+                  style={{
+                    backgroundColor: '#1A1A1A',
+                    color: '#ffffff',
+                    fontWeight: 700,
+                    borderRadius: '8px',
+                    padding: '8px 16px',
+                    border: 'none',
+                    fontSize: '13px',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#333333'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#1A1A1A'}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_forward</span>
+                  <span>عرض كل الورديات</span>
+                </Link>
+              </div>
+
+              <div className="table-responsive">
+                <table className="table align-middle mb-0 text-right" style={{ direction: 'rtl' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '2px solid #f3f4f6' }}>
+                      <th className="py-3 px-3 text-muted font-semibold" style={{ fontSize: '13px', borderBottom: 'none' }}>رقم الوردية</th>
+                      <th className="py-3 px-3 text-muted font-semibold" style={{ fontSize: '13px', borderBottom: 'none' }}>التاريخ</th>
+                      <th className="py-3 px-3 text-muted font-semibold" style={{ fontSize: '13px', borderBottom: 'none' }}>حالة الوردية</th>
+                      <th className="py-3 px-3 text-muted font-semibold" style={{ fontSize: '13px', borderBottom: 'none' }}>وقت البدء</th>
+                      <th className="py-3 px-3 text-muted font-semibold" style={{ fontSize: '13px', borderBottom: 'none' }}>وقت الإغلاق</th>
+                      <th className="py-3 px-3 text-muted font-semibold text-center" style={{ fontSize: '13px', borderBottom: 'none' }}>إجمالي الإيرادات</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentShifts.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" className="text-center py-4 text-muted" style={{ fontSize: '14px' }}>
+                          لا توجد ورديات مسجلة حالياً
+                        </td>
+                      </tr>
+                    ) : (
+                      recentShifts.slice(0, 5).map((shift) => (
+                        <tr key={shift.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                          <td className="py-3 px-3" style={{ fontWeight: 700, color: '#1A1A1A' }}>
+                            #{shift.id}
+                          </td>
+                          <td className="py-3 px-3 text-muted" style={{ fontSize: '13px' }}>
+                            {shift.created_at ? new Date(shift.created_at).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'}
+                          </td>
+                          <td className="py-3 px-3">
+                            {shift.shift_status === 'open' ? (
+                              <span className="badge rounded-pill bg-success-subtle text-success border border-success-subtle px-3 py-1.5" style={{ fontSize: '11px', fontWeight: 700 }}>
+                                <span className="d-inline-flex align-items-center gap-1">
+                                  <span className="spinner-grow spinner-grow-sm text-success" role="status" style={{ width: '6px', height: '6px' }}></span>
+                                  نشطة ومفتوحة
+                                </span>
+                              </span>
+                            ) : (
+                              <span className="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary-subtle px-3 py-1.5" style={{ fontSize: '11px', fontWeight: 700 }}>
+                                مغلقة ومسوية
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-3 px-3 text-muted" style={{ fontSize: '13px' }}>
+                            {shift.start_time ? shift.start_time.slice(0, 5) : '-'}
+                          </td>
+                          <td className="py-3 px-3 text-muted" style={{ fontSize: '13px' }}>
+                            {shift.shift_status === 'open' ? (
+                              <span className="text-success" style={{ fontWeight: 600 }}>قيد العمل</span>
+                            ) : (
+                              shift.end_time ? shift.end_time.slice(0, 5) : '-'
+                            )}
+                          </td>
+                          <td className="py-3 px-3 text-center" style={{ fontWeight: 800, color: '#1A1A1A', fontSize: '14px' }}>
+                            {formatPrice(shift.total_revenue)}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
           {/* Middle Row: Top Clients Tables */}
           <div className="row g-4 mb-4">
             {/* Most Visiting Customers */}
@@ -335,7 +430,7 @@ export default function Dashboard() {
               <div className="card shadow-sm border-0 p-3 h-100" style={{ borderRadius: '12px', backgroundColor: '#ffffff' }}>
                 <h5 className="mb-4" style={{ fontWeight: 800, color: '#1A1A1A' }}>الخدمات الأكثر طلباً</h5>
                 <div className="row g-3">
-                  {popularServices.slice(0, 2).map((service) => (
+                  {popularServices.map((service) => (
                     <div key={service.id} className="col-6">
                       <div className="p-3 rounded border text-center bg-light h-100" style={{ borderRadius: '8px' }}>
                         <span className="material-symbols-outlined text-warning mb-2" style={{ fontSize: '28px' }}>content_cut</span>

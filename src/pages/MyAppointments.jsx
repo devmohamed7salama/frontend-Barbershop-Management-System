@@ -129,6 +129,27 @@ export default function MyAppointments() {
                   <span><strong>العملاء أمامك في الانتظار:</strong> {queueCounts[ap.id]} عميل</span>
                 </div>
               )}
+              {ap.appointment_status === 'completed' && ap.invoice_id && (
+                <>
+                  {ap.rating_status === 'open' ? (
+                    <div className="mt-3 pt-3 border-top border-secondary">
+                      <Link 
+                        to={`/rate/${ap.invoice_id}`} 
+                        className="btn btn-warning w-100 d-flex align-items-center justify-content-center gap-2 py-2 text-decoration-none" 
+                        style={{ borderRadius: '8px', fontWeight: 'bold', fontSize: '13px', backgroundColor: '#D4AF37', color: '#1A1A1A', border: 'none', transition: 'all 0.2s' }}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>star</span>
+                        <span>تقييم زيارتك (شاركنا رأيك)</span>
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="mt-3 pt-3 border-top border-secondary d-flex align-items-center gap-2 text-success" style={{ fontSize: '13px', fontWeight: 'bold' }}>
+                      <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                      <span>شكراً لك! تم تقييم هذه الزيارة</span>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
 
             {/* Services List */}
@@ -150,7 +171,7 @@ export default function MyAppointments() {
             {ap.appointment_notes && (
               <div className="col-12 border-top border-secondary pt-3 mt-2">
                 <div className="text-light text-[13px] mb-1">ملاحظاتك:</div>
-                <p className="mb-0 text-light italic text-[13px]">{ap.appointment_notes}</p>
+                <p className="mb-0 text-light  text-[13px]">{ap.appointment_notes}</p>
               </div>
             )}
           </div>

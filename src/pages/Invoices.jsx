@@ -74,7 +74,8 @@ export default function Invoices() {
     }
     const invoiceNumber = invoice.invoice_number || `#INV-${invoice.id}`;
     const receiptUrl = getReceiptUrl(invoice.id);
-    const message = `مرحباً ${invoice.customer?.name || invoice.customer?.customer_name || 'عميلنا العزيز'}،\n\nيسعدنا زيارتك لصالون المقص الذهبي. 💈✨\n\nهذه تفاصيل فاتورتك رقم ${invoiceNumber} بقيمة ${formatPrice(invoice.total_price)}.\nيمكنك عرضها وطباعتها من خلال الرابط التالي:\n${receiptUrl}\n\nنشكرك لاختيارك صالوننا الفاخر! ❤️`;
+    const ratingUrl = `${window.location.origin}/rate/${invoice.id}`;
+    const message = `مرحباً ${invoice.customer?.name || invoice.customer?.customer_name || 'عميلنا العزيز'}،\n\nيسعدنا زيارتك لصالون المقص الذهبي. 💈✨\n\nهذه تفاصيل فاتورتك رقم ${invoiceNumber} بقيمة ${formatPrice(invoice.total_price)}.\nيمكنك عرضها وطباعتها من خلال الرابط التالي:\n${receiptUrl}\n\nنسعد بتقييمك لخدمتنا من خلال هذا الرابط:\n${ratingUrl}\n\nنشكرك لاختيارك صالوننا الفاخر! ❤️`;
     
     const encodedText = encodeURIComponent(message);
     const waUrl = `https://wa.me/${phone}?text=${encodedText}`;

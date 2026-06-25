@@ -19,6 +19,8 @@ import Booking from '../pages/Booking';
 import Barbers from '../pages/Barbers';
 import Shifts from '../pages/Shifts';
 import MyAppointments from '../pages/MyAppointments';
+import RatingPage from '../pages/RatingPage';
+import AdminRatings from '../pages/AdminRatings';
 
 
 export default function AppRoutes() {
@@ -27,6 +29,7 @@ export default function AppRoutes() {
       {/* Public Guest Routes */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/rate/:invoiceId" element={<RatingPage />} />
 
       {/* Client Layout Routes (Public Booking, Blocks Admin) */}
       <Route
@@ -56,9 +59,10 @@ export default function AppRoutes() {
         <Route path="/barbers" element={<Barbers />} />
         <Route path="/customers" element={<Customers />} />
         <Route path="/services" element={<Services />} />
-        <Route path="/invoices" element={<Invoices />} />
+        <Route style={{ direction: 'rtl' }} path="/invoices" element={<Invoices />} />
         <Route path="/invoices/new" element={<AdminCreateInvoice />} />
         <Route path="/invoices/quick" element={<AdminCreateQuickInvoice />} />
+        <Route path="/ratings" element={<AdminRatings />} />
       </Route>
 
       {/* Redirects */}
